@@ -763,7 +763,7 @@ bind.ready = {
   }
 }
 
-setTimeout(() => handleReady, 0)
+handleReady();
 
 extend(Jin, fn)
 

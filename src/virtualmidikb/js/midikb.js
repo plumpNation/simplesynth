@@ -162,27 +162,30 @@ const onmidievent = (e) => {
   }
 
   function release (num) {
-    var i = pressedKeys.indexOf(num)
+    const index = pressedKeys.indexOf(num)
+    const keyAlreadyReleased = pressedKeys.indexOf(num) < 0
 
-    if (num < 0 || i === -1) {
+    if (num < 0 || keyAlreadyReleased) {
       return
     }
 
-    pressedKeys.splice(i, 1)
-    keys.item(num).removeClass('pressed')
+    pressedKeys.splice(index, 1)
+
+    keys[num].classList.remove('pressed')
+
     onmidievent(new MidiEvent(channel, 8, num, 0))
   }
 
   function press (num) {
-    let i = pressedKeys.indexOf(num)
+    const keyAlreadyPressed = pressedKeys.indexOf(num) > -1
 
-    if (num < 0 || i !== -1) {
+    if (num < 0 || keyAlreadyPressed) {
       return
     }
 
     pressedKeys.push(num)
 
-    keys.item(num).addClass('pressed')
+    keys[num].classList.add('pressed')
 
     onmidievent(new MidiEvent(channel, 9, num, velocity))
   }
@@ -266,10 +269,10 @@ const onmidievent = (e) => {
 
   function MidiEvent (channel, status, data1, data2) {
     Jin.extend(this, {
-      channel: channel,
-      status: status,
-      data1: data1,
-      data2: data2
+      channel,
+      status,
+      data1,
+      data2
     })
   }
 
@@ -311,9 +314,11 @@ const onmidievent = (e) => {
     }
 
     bind(settingButton, 'click', settings.open)
+
     keys
       .bind('mousedown', function (e) {
         e.preventDefault()
+
         mouseKeyPress(keys.indexOf(this))
       })
       .bind('mousemove', function (e) {
