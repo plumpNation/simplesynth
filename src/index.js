@@ -1,14 +1,13 @@
-let context = new AudioContext()
+const sampleRate = 22050
 
-context.sampleRate = 22050
-
-const oscillator = context.createOscillator()
+let audioCtx
+let oscillator
 
 const pressedKeys = []
 
-oscillator.frequency = 0
+window.addEventListener('DOMContentLoaded', onDOMContentLoaded, true)
 
-function start () {
+function onDOMContentLoaded () {
   window.onmidi = onmidi
 
   document.getElementById('waveshape')
@@ -16,25 +15,31 @@ function start () {
       oscillator.waveShape = Number(this.value)
     }, true)
 
-  context = new AudioContext()
-
-  context.sampleRate = 22050
+  audioCtx = new AudioContext({
+    sampleRate
+  })
 
   // new AudioDevice(samplerate, 2, processAudio)
+
+  oscillator = audioCtx.createOscillator()
+  oscillator.frequency.setValueAtTime(0, audioCtx.currentTime)
+
+  oscillator.connect(audioCtx.destination)
+  oscillator.start()
 }
 
-function processAudio (buffer) {
-  const l = buffer.length
+// function processAudio (buffer) {
+//   const l = buffer.length
 
-  for (let i = 0; i < l; i++) {
-    // Advance the oscillator angle, add some flavor with Math.random noise.
-    oscillator.generate((Math.random() * 2 - 1) * 0.3)
+//   for (let i = 0; i < l; i++) {
+//     // Advance the oscillator angle, add some flavor with Math.random noise.
+//     oscillator.generate((Math.random() * 2 - 1) * 0.3)
 
-    // Set the sample for both channels to oscillator's output, and multiply
-    // that with 0.2 to lower the volume to a less irritating/distorted level.
-    buffer[i] = buffer[++i] = oscillator.getMix() * 0.2
-  }
-}
+//     // Set the sample for both channels to oscillator's output, and multiply
+//     // that with 0.2 to lower the volume to a less irritating/distorted level.
+//     buffer[i] = buffer[++i] = oscillator.getMix() * 0.2
+//   }
+// }
 
 function onmidi (e) {
   // 0x9, KEYDOWN // 0x8, KEYUP
@@ -60,10 +65,8 @@ function onmidi (e) {
   // If there are any pressed keys.
   if (pressedKeys.length) {
     // Set the oscillator frequency to match the last key pressed
-    oscillator.frequency = 440 * Math.pow(1.059, pressedKeys[0] - 69)
+    oscillator.frequency.setValueAtTime(440 * Math.pow(1.059, pressedKeys[0] - 69), audioCtx.currentTime)
   } else {
-    oscillator.frequency = 0
+    oscillator.frequency.setValueAtTime(0, audioCtx.currentTime);
   }
 }
-
-window.addEventListener('load', start, true)
