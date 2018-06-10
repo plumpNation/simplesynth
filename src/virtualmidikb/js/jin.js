@@ -188,33 +188,6 @@ function CommandLine () {
   }
 }
 
-function create (type, id) {
-  if (!type) {
-    type = 'div' // The probabilities are...
-  }
-
-  let elem = document.createElement(type)
-  let prop
-
-  if (id) {
-    if (typeof id === 'object') {
-      for (prop in id) {
-        if (id !== 'css') { // This is just crazy, remove this if you're not just doing things to pass JSLint.
-          elem.setAttribute(x, id[prop])
-        }
-      }
-
-      if (id.css) {
-        extend(elem.style, id.css)
-      }
-    } else {
-      elem.id = id
-    }
-  }
-
-  return elem
-}
-
 function css (elem, property, value) {
   let style = elem.style
   let prop
@@ -690,7 +663,6 @@ addModule('addClasses', addClasses)
 addModule('addModule', addModule)
 addModule('appendChildren', appendChildren)
 addModule('bind', bind)
-addModule('create', create)
 addModule('css', css)
 addModule('byCl', byCl)
 addModule('byId', byId)

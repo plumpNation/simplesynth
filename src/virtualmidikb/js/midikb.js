@@ -96,13 +96,13 @@ const onmidievent = (e) => {
         return
       }
 
-      settingWindow = create()
+      settingWindow = document.createElement('div')
       settingWindow.id = 'settings'
 
       document.body.appendChild(settingWindow)
 
-      sh = create('button')
-      an = create('button')
+      sh = document.createElement('button')
+      an = document.createElement('button')
 
       sh.innerHTML = 'Toggle Shadows'
       an.innerHTML = 'Toggle Animation'
@@ -278,21 +278,22 @@ const onmidievent = (e) => {
 
   function createKeys (i) {
     for (let i = 0; i < 128; i++) {
-      // keys[i] = create(); // Won't contribute to length, as of Jin 0.2
-      keys.push(create())
+      keys.push(document.createElement('div'))
+
       keys[i].className = 'key ' + (isKeyFlat[i % 12] ? 'black' : 'white')
       keys[i].title = keyNames[i % 12] + ' ' + Math.floor(i / 12)
       keys[i].id = 'key_' + i
+
       container.appendChild(keys[i])
     }
   }
 
   function defineElements () {
-    container = create()
+    container = document.createElement('div')
     container.id = 'keycontainer'
     container.style.left = '-560px'
 
-    settingButton = create('button')
+    settingButton = document.createElement('button')
     settingButton.id = 'settingButton'
     settingButton.title = 'Settings'
     settingButton.innerHTML = 'S'
