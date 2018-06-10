@@ -12,8 +12,8 @@
     window.onmidi = onmidi
 
     document.getElementById('waveshape')
-      .addEventListener('change', function () {
-        oscillator.waveShape = Number(this.value)
+      .addEventListener('change', (e) => {
+        oscillator.type = e.target.value
       }, true)
 
     audioCtx = new AudioContext({

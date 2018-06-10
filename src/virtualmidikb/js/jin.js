@@ -94,21 +94,13 @@ function bind (elem, type, func, pass) {
     }
 
     e.data = pass
+
     func.call(elem, e)
   }
 
-  if (document.addEventListener) {
-    elem.addEventListener(type, fnc, false)
-  } else {
-    elem.attachEvent('on' + type, fnc)
-  }
+  elem.addEventListener(type, fnc, false)
 
-  bind._binds.push({
-    elem,
-    type,
-    func,
-    fnc
-  })
+  bind._binds.push({elem, type, func, fnc})
 }
 
 function byCl (cl, where) {
@@ -119,24 +111,18 @@ function byCl (cl, where) {
   return where.getElementsByClassName(cl)
 }
 
-function byId (id, where) {
-  if (!where) {
-    where = document
-  }
-
+function byId (id, where = document) {
   return where.getElementById(id)
 }
 
-function byTag (tag, where) {
-  if (!where) {
-    where = document
-  }
-
+function byTag (tag, where = document) {
   return where.getElementsByTagName(tag)
 }
 
 function CommandLine () {
-  let path, getdata, iddata
+  let path
+  let getdata
+  let iddata
 
   this.id = function (id) {
     reload()
