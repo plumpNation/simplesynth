@@ -392,15 +392,6 @@ function layer () {
       }
     },
 
-    indexOf: function (elem) {
-      for (let i = 0; i < this.length; i++) {
-        if (this[i] === elem) {
-          return i
-        }
-      }
-      return -1
-    },
-
     first: function () {
       return layer(this[0])
     },
