@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "NODE_ENV=development parcel src/index.html --open"
   },
-  "dependencies": {
+  "devDependencies": {
     "parcel-bundler": "1.6.2",
     "standard": "11.0.1"
   },
