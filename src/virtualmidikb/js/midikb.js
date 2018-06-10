@@ -7,9 +7,10 @@ const onmidievent = (e) => {
 (function (window, Jin) {
   const isKeyFlat = [false, true, false, true, false, false, true, false, true, false, true, false]
   const keyNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-  const keys = new Jin.layer()
 
-  const keymap = [
+  const keys = new Jin.layer() // eslint-disable-line
+
+  let keymap = [
     [90, 48], // C1
     [83, 49],
     [88, 50],
@@ -149,15 +150,16 @@ const onmidievent = (e) => {
     if (pitchBendAmount > 16383) {
       pitchBendAmount = 16383
     }
+
     if (pitchBendAmount < 0) {
       pitchBendAmount = 0
+    }
+
+    const firstByte = Math.floor(pitchBendAmount / 128)
+    const secondByte = pitchBendAmount - firstByte * 128
+
+    onmidievent(new MidiEvent(channel, 14, firstByte, secondByte))
   }
-
-  const firstByte = Math.floor(pitchBendAmount / 128)
-  const secondByte = pitchBendAmount - firstByte * 128
-
-  onmidievent(new MidiEvent(channel, 14, firstByte, secondByte))
-}
 
   function release (num) {
     var i = pressedKeys.indexOf(num)
@@ -169,7 +171,7 @@ const onmidievent = (e) => {
     pressedKeys.splice(i, 1)
     keys.item(num).removeClass('pressed')
     onmidievent(new MidiEvent(channel, 8, num, 0))
-}
+  }
 
   function press (num) {
     let i = pressedKeys.indexOf(num)
@@ -183,71 +185,83 @@ const onmidievent = (e) => {
     keys.item(num).addClass('pressed')
 
     onmidievent(new MidiEvent(channel, 9, num, velocity))
-}
+  }
 
   function mouseKeyPress (num) {
     release(mkey)
-  mkey = num
-  press(num)
-}
+    mkey = num
+    press(num)
+  }
 
   function touching (e) {
-    var i, key, newTouches = []
-  for (i = 0; i < e.touches.length; i++) {
+    let key
+    let newTouches = []
+
+    for (let i = 0; i < e.touches.length; i++) {
       key = keys.indexOf(e.touches[i].target)
-    if (key === -1) {
+
+      if (key === -1) {
         return
-    }
+      }
+
       newTouches[i] = key
-  }
-    for (i = 0; i < touchedKeys.length; i++) {
+    }
+
+    for (let i = 0; i < touchedKeys.length; i++) {
       if (!isIn(touchedKeys[i], newTouches)) {
         release(touchedKeys[i])
+      }
     }
-    }
-    for (i = 0; i < newTouches.length; i++) {
+
+    for (let i = 0; i < newTouches.length; i++) {
       if (!isIn(newTouches[i], touchedKeys)) {
         press(newTouches[i])
+      }
     }
-    }
+
     touchedKeys = newTouches
-  if (e.preventDefault) {
+
+    if (e.preventDefault) {
       e.preventDefault()
-  }
+    }
   }
 
   function keyboardParamDown (num) {
     if (num === 40) {
       pitchBend(-200)
-  } else if (num === 38) {
+    } else if (num === 38) {
       pitchBend(200)
-  } else {
+    } else {
       return false
-  }
+    }
+
     return true
-}
+  }
 
   function keyboardParamUp (num) {
     if (num === 40 || num === 38) {
       pitchBend()
-  } else {
+    } else {
       return false
-  }
+    }
+
     return true
-}
+  }
 
   function keyboardPress (num, oct) {
     if (keymap[num]) {
       press(keymap[num] + oct * 12)
-    return true
-  }
+
+      return true
+    }
   }
 
   function keyboardRelease (num, oct) {
     if (keymap[num]) {
       release(keymap[num] + oct * 12)
-    return true
-  }
+
+      return true
+    }
   }
 
   function MidiEvent (channel, status, data1, data2) {
@@ -257,101 +271,106 @@ const onmidievent = (e) => {
       data1: data1,
       data2: data2
     })
-}
+  }
 
   function createKeys (i) {
-    for (i = 0; i < 128; i++) {
-    // keys[i] = create(); // Won't contribute to length, as of Jin 0.2
+    for (let i = 0; i < 128; i++) {
+      // keys[i] = create(); // Won't contribute to length, as of Jin 0.2
       keys.push(create())
-    keys[i].className = 'key ' + (isKeyFlat[i % 12] ? 'black' : 'white')
-    keys[i].title = keyNames[i % 12] + ' ' + Math.floor(i / 12)
-    keys[i].id = 'key_' + i
-    container.appendChild(keys[i])
-  }
+      keys[i].className = 'key ' + (isKeyFlat[i % 12] ? 'black' : 'white')
+      keys[i].title = keyNames[i % 12] + ' ' + Math.floor(i / 12)
+      keys[i].id = 'key_' + i
+      container.appendChild(keys[i])
+    }
   }
 
   function defineElements () {
     container = create()
-  container.id = 'keycontainer'
-  container.style.left = '-560px'
+    container.id = 'keycontainer'
+    container.style.left = '-560px'
 
-  settingButton = create('button')
-  settingButton.id = 'settingButton'
-  settingButton.title = 'Settings'
-  settingButton.innerHTML = 'S'
+    settingButton = create('button')
+    settingButton.id = 'settingButton'
+    settingButton.title = 'Settings'
+    settingButton.innerHTML = 'S'
 
-  Jin.appendChildren(document.body, container, settingButton)
-}
+    Jin.appendChildren(document.body, container, settingButton)
+  }
 
   function doBindings () {
     function keyDown (e) {
       if (keyboardPress(e.which, e.shiftKey * 1 - e.ctrlKey * 1 + e.altKey * 1) || keyboardParamDown(e.which)) {
         e.preventDefault()
+      }
     }
-    }
+
     function keyUp (e) {
       if (keyboardRelease(e.which, e.shiftKey * 1 - e.ctrlKey * 1 + e.altKey * 1) || keyboardParamUp(e.which)) {
         e.preventDefault()
-    }
+      }
     }
 
     bind(settingButton, 'click', settings.open)
-  keys
+    keys
       .bind('mousedown', function (e) {
         e.preventDefault()
-      mouseKeyPress(keys.indexOf(this))
-    })
+        mouseKeyPress(keys.indexOf(this))
+      })
       .bind('mousemove', function (e) {
         e.preventDefault()
-      addClass(this, 'hover')
-      if (mouseDown) {
+
+        addClass(this, 'hover')
+
+        if (mouseDown) {
           mouseKeyPress(keys.indexOf(this))
-      }
+        }
       })
       .bind('mouseout', function (e) {
         removeClass(this, 'hover')
-      mouseKeyPress(-1)
-    })
-  Jin(document.documentElement)
+        mouseKeyPress(-1)
+      })
+
+    Jin(document.documentElement)
       .bind('mouseup', function (e) {
         e.preventDefault()
-      mouseKeyPress(-1)
-      mouseDown = false
-    })
+        mouseKeyPress(-1)
+        mouseDown = false
+      })
       .bind('mousedown', function (e) {
         mouseDown = true
-    })
+      })
       .bind('keydown', keyDown)
       .bind('keyup', keyUp)
       .bind('mousescroll', function (e) {
         var left = Math.max(Math.min((parseFloat(container.style.left) + e.delta * 50), 0), window.innerWidth - 3075)
-      container.style.left = left + 'px'
-    })
-  Jin(container)
+        container.style.left = left + 'px'
+      })
+
+    Jin(container)
       .bind('touchstart', touching)
       .bind('touchmove', touching) // Well if these aren't messed up...
       .bind('touchend', touching)
-  bind(window, 'hashchange', updateArguments)
-  if (parent) {
+
+    bind(window, 'hashchange', updateArguments)
+
+    if (parent) {
       Jin(parent)
         .bind('keydown', keyDown)
         .bind('keyup', keyUp)
-  }
+    }
   }
 
   pressedKeys.indexOf = Jin.layer().indexOf // Well, if Array.indexOf isn't there, I don't know if any use case fits anyway, but what the heck...
 
-remap()
+  remap()
 
-MidiEvent.name = 'MidiEvent'
+  MidiEvent.name = 'MidiEvent'
 
-
-Jin(function () {
+  Jin(function () {
     settings()
-  defineElements()
-  createKeys()
-  doBindings()
-  updateArguments()
-})
-
-}(window, Jin))
+    defineElements()
+    createKeys()
+    doBindings()
+    updateArguments()
+  })
+}(window, window.Jin))
